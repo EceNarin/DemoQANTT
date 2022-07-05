@@ -60,7 +60,7 @@ public class MyReusableMethods {
         LocalDateTime date=LocalDateTime.now();
         DateTimeFormatter dtf= DateTimeFormatter.ofPattern("YYMMddHHmmss");
         String dates = date.format(dtf);
-        File file=new File("src/test/TextFileProducts/file"+dates+".txt");
+        File file=new File("src/test/TextFileProducts_file"+dates+".txt");
         FileWriter fw= null;
         try {
             fw = new FileWriter(file);
