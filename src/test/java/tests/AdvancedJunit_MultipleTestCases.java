@@ -7,12 +7,17 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
-import pages.GittiGidiyor;
+import pages.DemoQa;
 import testlogger.TestResultLogger;
 import utilities.ConfigReader;
 import utilities.Driver;
 import utilities.MyReusableMethods;
+import utilities.ScreenShoot;
 
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
+import java.util.List;
 import java.util.Random;
 
 
@@ -20,94 +25,139 @@ import java.util.Random;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith(TestResultLogger.class)
 public class AdvancedJunit_MultipleTestCases {
-    GittiGidiyor gg=new GittiGidiyor();
+    DemoQa dmq=new DemoQa();
     Actions action=new Actions(Driver.getDriver());
-    JavascriptExecutor js=(JavascriptExecutor)Driver.getDriver();
-    String randomProFields="";
+    JavascriptExecutor executor=(JavascriptExecutor)Driver.getDriver();
+
     @Test
     @Order(1)
     public void navigateToWebSite_001(){
-        //-  user navigate to www.gittigidiyor.com
-        //confgreader properties'e key olarak yazdıgımız ggUrl yazısının value'una gider yani gittigdiyor.
-        //configuration.properties file2ina bakabilirsiniz
-        Driver.getDriver().get(ConfigReader.getProperty("ggUrl"));
-        MyReusableMethods.waitFor(4);
-        //user close photos
-        if(gg.close.isDisplayed()){
-            gg.close.click();
-        }
-        if(gg.cookies.isDisplayed()){
-            gg.cookies.click();//user close to cookies
-        }
-        //- user input search text box "bilgisayar"
-        //oop ile GittiGidiyor page sayfasindan olusturdugumuz "gg" objesi araciligiyla ilgili method webElementlist ve webelementleri cagiracagiz
-        MyReusableMethods.waitFor(3);
+        //user navigate to Demoga.com
+        Driver.getDriver().get(ConfigReader.getProperty("demoqaURL"));
+        //user verify to mainPage
+        String actual=Driver.getDriver().getTitle();
+        String expected="ToolsQA";
+        Assertions.assertEquals(expected,actual);
     }
     @Test
     @Order(2)
-    public void searchKeys_SelectPage_002(){
-        gg.textBox.sendKeys("bilgisayar"+ Keys.ENTER);
-        //- user navigate to 2. page from result of search page
-        int sayfa=2;
-        WebElement secondPage=gg.selectPage(sayfa);//gittiGidiyor class'indan cagirdigim reusable method alternatif icin olusturldu
-        MyReusableMethods.waitFor(3); //3 sn bekletiyoruz( utilities icinde bulunan MyReusableMethods class'indan göz atabilirsiniz bu method'a
-        secondPage.click();
-        //- user verfiy to in second page
-        action.sendKeys(Keys.PAGE_DOWN).perform();
-        String actualSeconPage=secondPage.getText();
-        //sayfamizim beklendigi 2. sayfada oldugunu kanitliyoruz
-        Assertions.assertTrue(actualSeconPage.toLowerCase().contains("2"));
+    public void click_practiceForm_002(){
+        //user click form link
+        dmq.form.click();
+        //user click on top menu "pratice form"
+        dmq.practiceForm.click();
     }
     @Test
     @Order(3)
     public void clickRandomlyProduct_003(){
-        //- user will select from one displayed product randomly
+        //user take from csv file name fields and input fistname textbox
+       String str= MyReusableMethods.csvReader(1,0);
+       dmq.firstname.sendKeys(str);
+       //user take from csv file lastname and input lastname into textbox
+       dmq.lastName.sendKeys(MyReusableMethods.csvReader(1,1));
+       // user take from csv file email and input email into textbox
+        dmq.userMail.sendKeys(MyReusableMethods.csvReader(1,2));
+        //we will select ramdomly gender radio button
+        int size=dmq.selectGender.size();
         Random rnd=new Random();
-        //int turunden donducrecegimizin random'un bound'unu sayfada olan tum product sayisinin -1'i kadar donmesini saglayark cagirracagiz
-        //-1 dedik cunku GittiGidiyor class'indan webElement list'e attigimiz butun product size'ini gecmesini istemiyoruz (boundException)
-        int random=rnd.nextInt(gg.allProductsSeconPage.size()-1);
-        WebElement randomProducts= gg.allProductsSeconPage.get(random);
-        //67.Row'da buradaki string'in Assert'unu yapacagiz
-        randomProFields=randomProducts.getText();//we will use this string for asserting after add this products fields in chart //67. row
-        randomProducts.click();
+        int random= rnd.nextInt(size);//we are determine to random numbers bounds genders radiobuttons size
+        //user select gender radio button randomly
+        dmq.selectGender.get(random).click();
+        //user take from csv file phonenumber and input phonenumber into textbox
+        dmq.phoneNumber.sendKeys(MyReusableMethods.csvReader(1,3));
+        //fill the BOD
+            //1. click bod webelement
+        dmq.dateOfBirth.click();
+        WebElement ddmMonth = dmq.selectMonth;
+        Select selectMonth = new Select(ddmMonth);
+
+        selectMonth.selectByVisibleText("July"); // CSV dosyasından alınacak doğum tarihi split edilerek.
+
+        WebElement ddmYear = dmq.selectYear;
+        Select selectYear = new Select(ddmYear);
+
+        selectYear.selectByValue("1992"); // CSV dosyasından alınacak doğum tarihi split edilerek.
+
+        List<WebElement> days = dmq.listDays;
+
+        System.out.println(days.get(1).getText());
+
+        int add = 0;
+
+        for (int i = 0; i < days.size(); i++) {
+            if (days.get(i).getText().equals("1")) {
+                add = i-1;
+                break;
+            }
+        }
+        int day = 23; // CSV dosyasından alınacak doğum tarihi split edilerek.
+
+        days.get(day+add).click();
     }
 
-    @Test
-    @Order(4)
-    void printIntoTextProductFields_004() {
-        //- user will print all which selected randomly products's datas in text.exe
-        action.sendKeys(Keys.PAGE_DOWN).perform();
-        if(gg.cookies.isDisplayed()){
-            gg.cookies.click();//user close to cookies
+
+        @Test
+        @Order(4)
+        public void fillBlanks_ () {
+
+            MyReusableMethods.waitFor(4);
+            //user selects min 2 click button as hobbies
+            for(int i=0;i<dmq.hobbies.size();i++){
+                if(dmq.hobbies.get(i).isSelected()){
+                    continue;
+                }else {
+                    dmq.hobbies.get(i).click();
+                }
+            }
+
         }
-        //bekletmeler yazilmanin saglikli sekilde yapilmasi icin konmustur
-        MyReusableMethods.waitFor(5);
-        //reusable method araciligi ile icine attigimiz WeElemntList'inin txt'i icine yazilmasini sagliyoruz
-        MyReusableMethods.writeToListINTOText(gg.productFields);
-        MyReusableMethods.waitFor(3);
-        //- user add to chart which selected random products
-        js.executeScript("arguments[0].click()",gg.addToChart);
-        //- user verify selected products datas's with which are added to chart products datas
-        MyReusableMethods.waitFor(3);
-        gg.goToChart.click();
-        String actualProduct=gg.productFieldsInChart.getText();
-        Assertions.assertTrue(actualProduct.toLowerCase().contains(randomProFields.toLowerCase()));
-    }
 
     @Test
     @Order(5)
-    public void IncreaseProductNum_RemoveProduct_005(){
-        //- user increase numbers to 2, selected products which are in added to chart and verify them
-        Select select=new Select(gg.increaseProduct);
-        select.selectByVisibleText("2");
-        Assertions.assertTrue(select.getFirstSelectedOption().getText().equals("2"));
-        //- user will remove all products from chart
-        gg.removeProducts.click();
-        //and verify chart is empty
+    void posttImageFileViaRobot_004() throws AWTException {
+        // User clicks "Dosya Seçin" button
+        JavascriptExecutor js = (JavascriptExecutor)Driver.getDriver();
+        js.executeScript("window.scrollBy(0,200)");
+        //robot ve javaScript kodlari olasi windows'a gecisi onlemek adina. risksizdir
+        dmq.uploadFile.click();
         MyReusableMethods.waitFor(3);
-        String actualWord=gg.emptyBox.getText();
-        String expectedWord="Sepetinizde ürün bulunmamaktadır.";
-        MyReusableMethods.waitFor(3);
-        Assertions.assertTrue(actualWord.equalsIgnoreCase(expectedWord));
+        Robot rb = new Robot();
+        StringSelection str = new StringSelection("\"C:\\Users\\himer\\OneDrive\\Masaüstü\\hasortman.jpg\"");
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(str, null);
+        rb.keyPress(KeyEvent.VK_CONTROL);
+        rb.keyPress(KeyEvent.VK_V);
+        rb.keyRelease(KeyEvent.VK_CONTROL);
+        rb.keyRelease(KeyEvent.VK_V);
+        rb.keyPress(KeyEvent.VK_ENTER);
+        rb.keyRelease(KeyEvent.VK_ENTER);
+        //user take from csv file "Current adress "and input Current adress  into textbox
+        dmq.currentAdress.sendKeys(MyReusableMethods.csvReader(1,5));
+        //user select state
+        //burada dev tools'ta olan select class'iyla dropdown menusu select tagıyla yapılmadıgı icin secim yapamıyoruz
+        //
+        action.sendKeys(Keys.PAGE_DOWN).perform();
+        //
+        executor.executeScript("arguments[0].click();", dmq.selectState);
     }
+    @Test
+    @Order(6)
+    public void submit_Screenshot_006 () {
+
+        //user click to submit button
+        MyReusableMethods.waitFor(2);
+        WebElement submit= dmq.submit;
+        executor.executeScript("arguments[0].click();", submit);
+        //user wait for 5 sec to POP_UP
+        MyReusableMethods.waitForPageToLoad(5);
+        //user verify to see "Thanks for submitting the form"
+        String actualText=dmq.submitVerifyText.getText();
+        String expectedText="Thanks for submitting the form";
+        Assertions.assertEquals(expectedText,actualText);
+        //take pop_up screenShot
+        // screnShot dosyasi path'i target/AllScreenShoot  target klasoru altinda
+        ScreenShoot.takeShootWebElement(dmq.popUp);
+        //close the popUp
+        dmq.closePopUp.click();
+    }
+
 }

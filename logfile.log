@@ -1,5 +1,0 @@
-2022-07-06 01:33:03,699 INFO  [Log] navigateToWebSite_001() PASSED 
-2022-07-06 01:33:11,897 INFO  [Log] searchKeys_SelectPage_002() PASSED 
-2022-07-06 01:33:14,898 INFO  [Log] clickRandomlyProduct_003() PASSED 
-2022-07-06 01:33:30,149 INFO  [Log] printIntoTextProductFields_004() PASSED 
-2022-07-06 01:33:37,097 INFO  [Log] IncreaseProductNum_RemoveProduct_005() PASSED 

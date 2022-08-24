@@ -1,6 +1,8 @@
 package utilities;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -14,10 +16,7 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 
@@ -36,6 +35,31 @@ public class MyReusableMethods {
         FileUtils.copyFile(source, finalDestination);
         return target;
     }
+    //READ EXCEL FORM
+    public static String readExcel(int row, int col){
+        //8. FileInputStream objesi olusturup,parametre olarak dosya yolunu girelim
+        String dosyaYolu="src/test/java/resources/informationsForForm.xlsx"; //excelDosyaYolu
+        FileInputStream fis= null;
+        try {
+            fis = new FileInputStream(dosyaYolu);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        //9. Workbook objesi olusturalim,parameter olarak fileInputStream objesini girelim
+        //10. WorkbookFactory.create(fileInputStream)
+        try {
+            Workbook workbook= WorkbookFactory.create(fis);
+            int row1=row-1;
+            int col1=col-1;
+            String word=workbook.getSheet("Sayfa1").getRow(row1).getCell(col1).toString();
+            return word;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+
+    }
 
 
 
@@ -45,77 +69,8 @@ public class MyReusableMethods {
         Actions actions = new Actions(Driver.getDriver());
         actions.moveToElement(element).perform();
     }
-    //==========Return a list of string given a list of Web Element====////
-    public static List<String> getElementsText(List<WebElement> list) {
-        List<String> elemTexts = new ArrayList<>();
-        for (WebElement el : list) {
-            if (!el.getText().isEmpty()) {
-                elemTexts.add(el.getText());
-            }
-        }
-        return elemTexts;
-    }
-    //=================Writing List text on text====================///////
-    public static void writeToListINTOText(List<WebElement>list){
-        LocalDateTime date=LocalDateTime.now();
-        DateTimeFormatter dtf= DateTimeFormatter.ofPattern("YYMMddHHmmss");
-        String dates = date.format(dtf);
-        File file=new File("src/test/TextFileProducts_file"+dates+".txt");
-        FileWriter fw= null;
-        try {
-            fw = new FileWriter(file);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            for(int i=0;i< list.size();i++){
-                fw.write(list.get(i).getText() +"\n");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            fw.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
-    }
-    //=================Writing  onewebelemt text on text====================///////
-    public static void writeToOneElementToText(WebElement we){
-        LocalDateTime date=LocalDateTime.now();
-        DateTimeFormatter dtf= DateTimeFormatter.ofPattern("YYMMddHHmmss");
-        String dates = date.format(dtf);
-        File file=new File("src/test/resources"+dates+".txt");
-        try {
-            FileUtils.writeStringToFile(file,we.getText(), Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    //=================Writing  String text on text====================///////
-    public static void writeToOneStringToText(String str){
-        LocalDateTime date=LocalDateTime.now();
-        DateTimeFormatter dtf= DateTimeFormatter.ofPattern("YYMMddHHmmss");
-        String dates = date.format(dtf);
-        File file=new File("src/test/resources"+dates+".txt");
-        try {
-            FileUtils.writeStringToFile(file,str, Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    //========Returns the Text of the element given an element locator==//
-    public static List<String> getElementsText(By locator) {
-        List<WebElement> elems = Driver.getDriver().findElements(locator);
-        List<String> elemTexts = new ArrayList<>();
-        for (WebElement el : elems) {
-            if (!el.getText().isEmpty()) {
-                elemTexts.add(el.getText());
-            }
-        }
-        return elemTexts;
-    }
+
     //   HARD WAIT WITH THREAD.SLEEP
 //   waitFor(5);  => waits for 5 second
     public static void waitFor(int sec) {
@@ -130,18 +85,7 @@ public class MyReusableMethods {
         WebDriverWait wait = new WebDriverWait(Driver.getDriver(), Duration.ofSeconds(timeout));
         return wait.until(ExpectedConditions.visibilityOf(element));
     }
-    public static WebElement waitForVisibility(By locator, int timeout) {
-        WebDriverWait wait = new WebDriverWait(Driver.getDriver(), Duration.ofSeconds(timeout));
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-    }
-    public static WebElement waitForClickablility(WebElement element, int timeout) {
-        WebDriverWait wait = new WebDriverWait(Driver.getDriver(), Duration.ofSeconds(timeout));
-        return wait.until(ExpectedConditions.elementToBeClickable(element));
-    }
-    public static WebElement waitForClickablility(By locator, int timeout) {
-        WebDriverWait wait = new WebDriverWait(Driver.getDriver(), Duration.ofSeconds(timeout));
-        return wait.until(ExpectedConditions.elementToBeClickable(locator));
-    }
+
     public static void clickWithTimeOut(WebElement element, int timeout) {
         for (int i = 0; i < timeout; i++) {
             try {
@@ -167,17 +111,23 @@ public class MyReusableMethods {
                     "Timeout waiting for Page Load Request to complete after " + timeout + " seconds");
         }
     }
-    //======Fluent Wait====//
-    public static WebElement fluentWait(final WebElement webElement, int timeout) {
-        //FluentWait<WebDriver> wait = new FluentWait<WebDriver>(Driver.getDriver()).withTimeout(timeinsec, TimeUnit.SECONDS).pollingEvery(timeinsec, TimeUnit.SECONDS);
-        FluentWait<WebDriver> wait = new FluentWait<WebDriver>(Driver.getDriver())
-                .withTimeout(Duration.ofSeconds(3))//Wait 3 second each time
-                .pollingEvery(Duration.ofSeconds(1));//Check for the element every 1 second
-        WebElement element = wait.until(new Function<WebDriver, WebElement>() {
-            public WebElement apply(WebDriver driver) {
-                return webElement;
+
+
+    public static String csvReader(int x, int y) {
+
+        List<List<String>> records = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader("src/test/java/resources/userdata.csv"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                records.add(Arrays.asList(values));
             }
-        });
-        return element;
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return records.get(x).get(y);
     }
+
 }
