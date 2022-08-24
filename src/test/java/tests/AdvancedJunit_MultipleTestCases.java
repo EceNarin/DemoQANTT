@@ -134,10 +134,7 @@ public class AdvancedJunit_MultipleTestCases {
         dmq.currentAdress.sendKeys(MyReusableMethods.csvReader(1,5));
         //user select state
         //burada dev tools'ta olan select class'iyla dropdown menusu select tagıyla yapılmadıgı icin secim yapamıyoruz
-        //
-        action.sendKeys(Keys.PAGE_DOWN).perform();
-        //
-        executor.executeScript("arguments[0].click();", dmq.selectState);
+
     }
     @Test
     @Order(6)
