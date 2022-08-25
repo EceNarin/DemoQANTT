@@ -32,16 +32,15 @@ public class DemoQa {
     public WebElement phoneNumber;
     @FindBy(xpath = "//input[@id=\"dateOfBirthInput\"]")
     public WebElement dateOfBirth;
-    @FindBy(xpath = "//input[@id=\"subjectsInput\"]")
+
+    //input[@id="subjectsInput"]
+    @FindBy(xpath = "//div[@class=\"subjects-auto-complete__placeholder css-1wa3eu0-placeholder\"]")
     public WebElement subjects;
     @FindBy(xpath = "//*[@id=\"hobbiesWrapper\"]/div[2]/div")
     public List<WebElement> hobbies;
 
     @FindBy(xpath = "//label[@for=\"uploadPicture\"]")
     public WebElement uploadFile;
-
-    @FindBy (xpath = "//input[@id=\"dateOfBirthInput\"]")
-    public WebElement inputDob;
 
     @FindBy (xpath = "//select[@class=\"react-datepicker__month-select\"]")
     public WebElement selectMonth;
